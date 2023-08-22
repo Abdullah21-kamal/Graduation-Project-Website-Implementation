@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Video Processing</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-image: url('zewailBack.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+
+      
+
+      .custom-button {
+        background-color: orange;
+        color: rgb(47, 11, 211);
+        font-size: 20px;
+        padding: 7px 15px;
+        border: 2px solid black;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+        margin-left: 10px;
+      }
+
+      .refresh-button {
+        background-color: orange;
+        color: rgb(72, 20, 216);
+        font-size: 20px;
+        padding: 7px 15px;  
+        border: 2px solid rgb(5, 5, 5);
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+
+      label {
+      font-size: 20px;
+      font-weight: bold;
+      }
+
+      .samples-button {
+        background-color: rgb(223, 158, 39);
+        color: rgb(139, 18, 209);
+        font-size: 20px;
+        padding: 7px 15px;
+        border: 2px solid black;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+        margin-left: 10px;
+      }
+      
+
+      #videoContainer {
+        text-align: center;
+      }
+
+      #uploadForm {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      #uploadForm input[type="file"] {
+        margin-right: 10px;
+        color: rgb(126, 254, 231);
+        font-weight: bold;
+        font-size: 36px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      h1 {
+        font-size: 36px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: rgb(94, 36, 228);
+        margin-top: 10px;
+        background-color: rgb(226, 198, 145);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      h2 {
+        font-size: 20px;
+        font-weight: bold;
+        color: rgb(67, 27, 179);
+        margin-top: 0;
+        background-color: rgb(226, 198, 145);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      h3 {
+        font-size: 30px;
+        font-weight: bold;
+        color: rgb(84, 24, 196);
+        background-color: rgb(226, 198, 145);
+        margin-top: 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      #description {
+        font-size: 25px;
+        font-weight: bold;
+        color: rgb(91, 31, 233);
+        margin-bottom: 10px;
+        margin-top: 0;
+        text-align: center; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center;
+        background-color: rgb(226, 198, 145);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      #refreshButton {
+        background-color: rgb(255, 149, 0);
+        color: rgb(53, 28, 194);
+        font-size: 18px;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+
+      #uploadForm button[type="submit"] {
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>{ AI FOOTBALL REFEREE }</h1>
+    
+    <div id="description">
+      <p>A computer program that uses machine learning algorithms to analyze and make decisions on a football game, such as tracking, fouls, offsides, and goals.</p>
+    </div>
+    <h2>Dr Tamer Ashour</h2>
+    <h3>Abdullah Kamal - Amr Ragab - Nasr Nasr- Mohamed Abdelwahed - Ibrahim Abdalaal </h3>
+    <form id="uploadForm">
+      <input type="file" name="fileInput" accept="video/*" />
+      <label><input type="radio" name="modelType" value="Tracking" checked> Tracking</label>
+      <label><input type="radio" name="modelType" value="Action Spotting"> Action Spotting</label>
+      <button type="submit" class="custom-button">Process Video</button>
+      <button id="refreshButton" type="button">Is it ready?</button>
+      <button class="samples-button" onclick="openSamples()">See Samples</button>
+    </form>
+    <div id="videoContainer">
+      <video id="videoPlayer" width="1000" height="400" controls autoplay loop>
+        <source src="/media/dell/HDD/GradPro/output/output.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+   
+
+    <div id="outputDiv"></div>
+
+    <script>
+      const uploadForm = document.getElementById("uploadForm");
+      const outputDiv = document.getElementById("outputDiv");
+      const videoPlayer = document.getElementById("videoPlayer");
+      const refreshButton = document.getElementById("refreshButton");
+
+      uploadForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const fileInput = document.querySelector('input[type="file"]');
+        const file = fileInput.files[0];
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const modelType = document.querySelector('input[name="modelType"]:checked').value;
+        formData.append("model_type", modelType);
+
+        try {
+          const response = await fetch("http://localhost:8000/processvideo/", {
+            method: "POST",
+            body: formData,
+          } );
+
+          if (!response.ok) {
+            throw new Error(`Request failed with status ${response.status}`);
+          }
+
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+
+          videoPlayer.src = url;
+          outputDiv.innerHTML = ""; // Clear previous output
+
+          // Hide the refresh button
+          refreshButton.style.display = "none";
+        } catch (error) {
+          console.error(error);
+        }
+      });
+
+      // Function to handle SSE updates
+      function handleSSEUpdate(event) {
+        videoPlayer.src = event.data;
+      }
+
+      // Establish SSE connection
+      const eventSource = new EventSource("/updates");
+      eventSource.onmessage = handleSSEUpdate;
+
+      // Restart video when it ends
+      videoPlayer.addEventListener("ended", function () {
+        this.currentTime = 0;
+        this.play();
+      });
+
+      // Refresh the page when the "Is it ready?" button is clicked
+      refreshButton.addEventListener("click", function () {
+        location.reload();
+      });
+
+      // Function to open samples page
+      function openSamples() {
+        window.open("index2.html");
+      }
+    </script>
+  </body>
+</html>

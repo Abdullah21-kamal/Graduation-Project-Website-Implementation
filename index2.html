@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Video Samples</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-image: url('background.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+
+      #videoContainer {
+        text-align: center;
+      }
+
+      label {
+      font-size: 20px;
+      margin-right: 38px;
+      font-weight: bold;
+      color: rgb(2, 18, 22);
+      }
+
+      #videoPlayer {
+        width: 1000px;
+        height: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Video Samples</h1>
+    <form id="sampleForm">
+      <label><input type="radio" name="sample" value="Tracking 1"> Tracking 1</label>
+      <label><input type="radio" name="sample" value="Tracking 2"> Tracking 2</label>
+      <label><input type="radio" name="sample" value="Action 1"> Action 1</label>
+      <label><input type="radio" name="sample" value="Action 2"> Action 2</label>
+    </form>
+
+    <div id="videoContainer">
+      <video id="videoPlayer" controls>
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <script>
+      const sampleForm = document.getElementById("sampleForm");
+      const videoPlayer = document.getElementById("videoPlayer");
+
+      sampleForm.addEventListener("change", function () {
+        const selectedValue = document.querySelector('input[name="sample"]:checked').value;
+
+        switch (selectedValue) {
+          case "Tracking 1":
+            videoPlayer.src = "Tracking 1.mp4";
+            break;
+          case "Tracking 2":
+            videoPlayer.src = "Tracking 2.mp4";
+            break;
+          case "Action 1":
+            videoPlayer.src = "Action 1.mp4";
+            break;
+          case "Action 2":
+            videoPlayer.src = "Action 2.mp4";
+            break;
+          default:
+            videoPlayer.src = "";
+            break;
+        }
+
+        videoPlayer.load();
+      });
+    </script>
+  </body>
+</html>
